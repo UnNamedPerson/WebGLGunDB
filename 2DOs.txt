@@ -1,0 +1,15 @@
+draw({
+    wrap: "d1+d2+d3",
+    min: 0.2,
+    max: 0.8,
+    has: {
+        1: {has: "H"},
+        2: {has: "e"},
+        3: {has: "l"},
+        4: {has: "l"},
+        5: {has: "o"},
+        6: {has: "!"}
+    }
+    fill: 0xB06500,
+    align: 'left' || 'center' || 'right'
+})
