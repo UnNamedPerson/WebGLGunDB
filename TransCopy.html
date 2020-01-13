@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script src="Trans.js"></script>
+    <script src="TransCopy.js"></script>
 </head>
 <body>
-    <style>html, body { margin: 0; }</style>
+    <!-- <style>html, body { margin: 0; }</style> -->
     <canvas id="glCanvas">
         canvas hasn't loaded yet.
     </canvas>
-    <textarea id="type" style="opacity: 0.5; position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 0; margin: 0; border: 0;"></textarea>
 
     <script id="VertexShader" type="anytype">
        //vertex color and position attributes
@@ -37,12 +36,6 @@
         }
     </script>
 
-<script>
-type.onkeyup = function(){
-    // 2DO: add a parameter to define how the text should be justified
-    drawNumRects(type.value.length);  
-    // console.log('num', type.value.length)
-}
-</script>
+
 </body>
 </html>

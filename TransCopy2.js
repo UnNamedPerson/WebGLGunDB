@@ -69,11 +69,11 @@ window.onload = function(){
     this.console.log("height is: ", window.innerHeight);
 
     // var drawArray = drawRect(window.innerWidth, window.innerHeight, 30);
-    var rectWidth = 100;
+    var rectWidth = 80;
     var differenceWidth = window.innerWidth - maxWidth;
     var normalizedWidth =  (Math.abs(((rectWidth - differenceWidth) )/(window.innerWidth)  ) )/2 ;
-    var numberOfRects = 10;
-    var drawArray = drawRect(normalizedWidth, maxWidth, numberOfRects, window);
+
+    var drawArray = drawRect(normalizedWidth, maxWidth, 1, window);
 
     var glBuffer = glContext.createBuffer();
     glContext.bindBuffer(glContext.ARRAY_BUFFER, glBuffer);
@@ -103,9 +103,6 @@ window.onload = function(){
         // updating the canvas
         glCanvas.width = window.innerWidth;
         glCanvas.height = window.innerHeight;
-
-        // 2DO: change maxwidth here
-        // maxWidth = -1;
 
         glContext.clearColor(0, 0, 0, 0.5);
         glContext.clear(glContext.COLOR_BUFFER_BIT || glContext.DEPTH_BUFFER_BIT || glContext.STENCIL_BUFFER_BIT);
@@ -154,7 +151,7 @@ function drawRect( width,  maxWidth, numberOfObjects, window){
     var rectWidth = width; // right one!
     // var rectHeight = height /3;
 
-    // console.log("original rectangle width: ", rectWidth);
+    console.log("original rectangle width: ", rectWidth);
     // console.log("original rectangle height: ", rectHeight);
 
     // var normalizedHeight =  (Math.abs(((rectHeight) )/(window.innerWidth) -1 ) )/2;
@@ -164,12 +161,8 @@ function drawRect( width,  maxWidth, numberOfObjects, window){
     console.log("normalized width", rectWidth);
     // console.log("normalized height", normalizedHeight);
 
-    // var x1 = -0.95;  // ORIGINAL (left to right)
-    // var x1 = 0.95; // (right to left)
-    // var x1 = 0.0 - numberOfObjects * rectWidth ; // center
-    var x1 = 0.0 ; // center
+    var x1 = -0.99;
     var y1 = 0.2;
-    // var distance = 0; // a variable used to adjust all the glyphs to be centered once each row reaches its max number of glyphs. (centered)
     var rectDrawArray = [];
 
     // var normalizedWindowWidth = window.innerWidth;
@@ -181,32 +174,10 @@ function drawRect( width,  maxWidth, numberOfObjects, window){
     var numberOfRows = (numberOfObjects/numberOfCols);
     var RectHeight = maxRectHeight(numberOfRows); 
 
-    var totalWidth = 0;
-
     for(j = 0; j < numberOfRows; j++){
-
-        //  CENTER JUST
-        if( (numberOfObjects / (j+1)) < numberOfCols){
-            x1 = 0.0 - (numberOfObjects / (j+1)) * rectWidth ; // center
-        }
-        else {
-            x1 = -0.95; // CENTER
-        }
-
         for(i = 0; i < numberOfCols ; i++){
             // making the other corners based on the original corners.
-
-            var x2 = x1 + rectWidth; // ORIGINAL (left to right)
-            // var x2 = x1 - rectWidth; // (right to left)
-            // totalWidth += rectWidth;
-
-            // CENTER
-            // if(i % 2 == 1){
-                // var x2 = x1 + rectWidth; // ORIGINAL (left to right)
-            // }
-            // else{
-                // var x2 = x1 - rectWidth; // (right to left)
-            // }
+            var x2 = x1 + rectWidth;
             var y2 = y1 + RectHeight;
 
             // creating the four corners below
@@ -235,66 +206,18 @@ function drawRect( width,  maxWidth, numberOfObjects, window){
             // making a gap for the next rectangle.
             // x1 += normalizedWidth + (normalizedWidth/2); 
             // x1 += rectWidth + window.innerWidth/10000; // use 0.04 as a gap value for now.
-            x1 += rectWidth + 0.04; // use 0.04 as a gap value for now. (left to right)
-            // x1 -= rectWidth + 0.04;  // (right to left)
-
-            // CENTER
-            // if(i % 2 == 1){
-            //   x1 += rectWidth + 0.04; // use 0.04 as a gap value for now. (left to right)           
-            // }
-            // else{
-            //   x1 -= rectWidth + 0.04;  // (right to left)
-            // }
-
-            // rectDrawArray = shiftLeft(rectDrawArray, rectWidth/2);  // we are using rectWidth we need to shift the glyphs each time we add a glyph, and so we need to shift all the rectangles (glyphs) by half of rectWidth value. 
-
-            // console.log("drawArray length: ", rectDrawArray.length);
-
+            x1 += rectWidth + 0.04; // use 0.04 as a gap value for now.
         
+            console.log("drawArray length: ", rectDrawArray.length);
+
         }
-
-    // console.log("What is total width?", totalWidth);
-    // rectDrawArray = shiftLeft(rectDrawArray, totalWidth *numberOfObjects );  // we are using rectWidth we need to shift the glyphs each time we add a glyph, and so we need to shift all the rectangles (glyphs) by half of rectWidth value. 
-    
-    // 2DO: shift everything to the left here
-    // rectDrawArray = shiftLeft(rectDrawArray, x2/2, numberOfCols);  // we are using x2 since it will be the last point in the last rectangle, and so we need to shift all the rectangles (glyphs) by half of x2 value. 
-
     // updating y1 while resetting x1
     y1 -= RectHeight + 0.02;
-    // x1 = -0.95; // ORIGINAL (left to right)
-    // x1 = 0.95; // (right to left)
-    // x1 = 0.0; // CENTER
-
+    x1 = -0.99;
 }
-
-// rectDrawArray = shiftLeft(rectDrawArray, totalWidth/2);  // we are using rectWidth we need to shift the glyphs each time we add a glyph, and so we need to shift all the rectangles (glyphs) by half of rectWidth value. 
 
 
 return rectDrawArray;
-}
-
-// a function that is used to shift all the vertices to the left by a half glyph half width. 
-function shiftLeft(rectDrawArray, distanceToShift){
-    // console.log("rectArray before shift", rectDrawArray[rectDrawArray.length - 2]);
-    // console.log("rectArray before shift", rectDrawArray[]);
-    console.log("rectArray length before shift", rectDrawArray.length);
-
-    // s = 0;
-    for(i = 0; i < rectDrawArray.length ; i++){
-        if (i % 2 == 0){
-            // console.log("index: ", i);
-            rectDrawArray[i] = rectDrawArray[i] - distanceToShift; 
-        }
-        else {
-            rectDrawArray[i] = rectDrawArray[i];
-        }
-        // s+=0.01;
-    } 
-    console.log("index 22:", rectDrawArray[22]);
-    console.log("rectArray length before shift", rectDrawArray.length);
-    // console.log("rectArray after ", rectDrawArray[rectDrawArray.length - 2]);
-
-    return rectDrawArray;
 }
 
 // a normalization function to turn the screen pixel size to the canvas
@@ -308,9 +231,7 @@ function minMaxNormalization(maxValue, minValue, currentValue){
 
 function maxNumRectangles(normalizedWidth, maxWidth, window){
     var gap = 0.07;
-    // maximumWidth = parseFloat(window.innerWidth/ ( maxWidth - 100) ); // max value in a canvas is 1
-    maximumWidth = parseFloat(window.innerWidth/ (maxWidth - 100) );
-    
+    maximumWidth = parseFloat(window.innerWidth/ (maxWidth - 100) ); // max value in a canvas is 1
     // console.log("maxWidth: ", maxWidth);
     // console.log("window Width: ", window.innerWidth);
     console.log("maximum width is: ", maximumWidth);
@@ -332,7 +253,6 @@ function maxNumRectangles(normalizedWidth, maxWidth, window){
     console.log("the max number of rects to be drawn: ", maxNumber);
     return maxNumber;
 }
-
 
 function maxRectHeight(maxNumberOfRows){
     var gap = 0.1;
