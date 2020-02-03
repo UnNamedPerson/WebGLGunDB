@@ -1,9 +1,5 @@
 window.onload = function(){
 
-    // global variables that defines the start position of where to draw the x value
-    var startX = -0.90;
-    var startY = 0;
-
     // canvas
     var glCanvas = document.getElementById("glCanvas");
     glCanvas.width = window.innerWidth;
@@ -67,12 +63,6 @@ window.onload = function(){
     glContext.bufferData(glContext.ARRAY_BUFFER, new Float32Array(drawArray) , glContext.STATIC_DRAW);
     var verAttributeLocationIndex = glContext.getAttribLocation(glProgram, 'a_position');
 
-    // setting the scaling matrix 
-    var scaleParameter = [1, 1];
-    var matrixLocation = glContext.getUniformLocation(glProgram, 'u_matrix');
-    var scaleMatrix = scalingMatrix(scaleParameter[0], scaleParameter[1]);
-
-
     glContext.vertexAttribPointer(
          verAttributeLocationIndex,
          2,  // number of elemnts in the array to use for each vertex
@@ -82,36 +72,28 @@ window.onload = function(){
          0); // offset from the begining of the buffer.
 
     glContext.enableVertexAttribArray(verAttributeLocationIndex);
-    // glContext.uniformMatrix3fv(matrixLocation, false, scaleMatrix);
+
     // let the gl context use the program to be able to draw the shapes. 
     glContext.useProgram(glProgram);
-    glContext.drawArrays(glContext.TRIANGLES, 0, 6 * 10); 
+    glContext.drawArrays(glContext.TRIANGLES, 0, 6 * 2); 
 
     window.addEventListener("resize", redrawAfterResize);
 
-    var textValue = [""];
-
     // an event function to change the drawing object after resizing the window.
-    function redrawAfterResize(numOfRects, value){
-        if(value != null){
-            // console.log("value array: ", value);
-            textValue = value;
-        }
-        // console.log("the value of value is:", value[value.length - 1]);
-        // take in the last letter that was written to know what letter draw on the screen
-        letter = textValue[textValue.length - 1];
-        // update the scales and the scale matrix.
-        sX = maxWidth / window.innerWidth;
-        sY =  maxHeight / window.innerHeight;
-        scaleMatrix = scalingMatrix(sX, sY);
-
+    function redrawAfterResize(numOfRects){
         glCanvas.numOfRects = (typeof numOfRects == 'number')? numOfRects : glCanvas.numOfRects;
-        
         // updating the canvas
         glCanvas.width = window.innerWidth;
         glCanvas.height = window.innerHeight;
-        glContext.viewport(0, 0, glCanvas.width, glCanvas.height); // works (somewhat).
+        glContext.viewport(0, 0, glCanvas.width, glCanvas.height);
+
+        //var differenceWidth = window.innerWidth - maxWidth;
+        //var normalizedWidth =  (Math.abs(((rectWidth - differenceWidth) )/(window.innerWidth)  ) )/2 ;
        
+        // var maxWidth = window.innerWidth;
+        //var normalizedWidth = Math.abs((rectWidth - window.innerWidth) / (window.innerWidth - 0));
+        // var normalizedWidth = rectWidth / window.innerWidth;
+
         // updating maxWidth 
         // maxWidth = (window.innerWidth/window.innerHeight) * maxWidth; // BAD
 
@@ -127,31 +109,14 @@ window.onload = function(){
         // this line of code changes the width of the rectangle after resizig the window.
         // var normalizedWidth =  (Math.abs(((rectWidth) + differenceWidth )/(window.innerWidth) ) )/2 ;
 
-        // var drawArray = drawRect(normalizedWidth, maxWidth, glCanvas.numOfRects, window); // original 
-        // var drawArray = F_Letter(normalizedWidth, maxWidth, glCanvas.numOfRects, window); // F letter
-        
-        // make the drawing based on the letter we have
-
-        // var overAllWidth = numOfRects * width; 
-
-        if (letter == "l"){
-            var drawArray = L_Letter(normalizedWidth, maxWidth, glCanvas.numOfRects, window); // L letter
-        }
-        else if (letter == "f"){
-            var drawArray = F_Letter(normalizedWidth, maxWidth, glCanvas.numOfRects, window); // F letter
-        }
-        else{
-            var drawArray = drawRect(normalizedWidth, maxWidth, glCanvas.numOfRects, window,); // original    
-        }
-
+        var drawArray = drawRect(normalizedWidth, maxWidth, glCanvas.numOfRects, window);
         // var drawArray = drawRect(normalizedWidth, window.innerWidth, glCanvas.numOfRects, window); // BAD
-        
+    
         var glBuffer = glContext.createBuffer();
         glContext.bindBuffer(glContext.ARRAY_BUFFER, glBuffer);
         glContext.bufferData(glContext.ARRAY_BUFFER, new Float32Array(drawArray) , glContext.STATIC_DRAW);
         var verAttributeLocationIndex = glContext.getAttribLocation(glProgram, 'a_position');
-        glContext.uniformMatrix3fv(matrixLocation, false, scaleMatrix);
-
+    
         glContext.vertexAttribPointer(
              verAttributeLocationIndex,
              2,
@@ -160,43 +125,30 @@ window.onload = function(){
              0,
              0);
 
-        glContext.enableVertexAttribArray(verAttributeLocationIndex);
-        glContext.useProgram(glProgram);
-
-        if (letter == "l"){
-            glContext.drawArrays(glContext.TRIANGLES, 0, 6 * glCanvas.numOfRects * 2); // L letter 
-        }
-        else if (letter == "f"){
-            glContext.drawArrays(glContext.TRIANGLES, 0, 6 * glCanvas.numOfRects * 3); // F letter
-    }
-        else{
-            glContext.drawArrays(glContext.TRIANGLES, 0, 6 * glCanvas.numOfRects); // original
-    }
-        // glContext.drawArrays(glContext.TRIANGLES, 0, 6 * glCanvas.numOfRects); // original
-        // glContext.drawArrays(glContext.TRIANGLES, 0, 6 * glCanvas.numOfRects * 3); // F letter
-        // glContext.drawArrays(glContext.TRIANGLES, 0, 6 * glCanvas.numOfRects * 2); // L letter 
-
-
+             glContext.enableVertexAttribArray(verAttributeLocationIndex);
+             glContext.useProgram(glProgram);
+             glContext.drawArrays(glContext.TRIANGLES, 0, 6 * glCanvas.numOfRects); 
     }
     window.drawNumRects = redrawAfterResize;
 
 }
 
+// test the new code that has normalization with 50px of width.
 function drawRect(width,  maxWidth, numberOfObjects, window){
-    maximumWidth = parseFloat(window.innerWidth/ (maxWidth) ); //works
-    console.log("maxWidth is: ", maxWidth);
-    console.log("Maximum width is: ", maximumWidth);
     // var rectWidth = width / numberOfObjects;
     var gap = 100;
     gap = gap / maxWidth;
     var rectWidth = width; // right one!
     // var rectWidth = width/maxWidth; 
 
-    // var x1 = -0.90// original 
-    var x1 = startX;
-    // var x1 = -maximumWidth;  // calibrate for changing x1 position and starting rectangle position.
-     
-    // var x1 = -0.95;  // ORIGINAL (left to right)
+    // var normalizedHeight =  (Math.abs(((rectHeight) )/(window.innerWidth) -1 ) )/2;
+    // var normalizedWidth =  (Math.abs(((rectWidth) )/(window.innerWidth) -1 ) )/2 ;
+
+    // var rectWidth = normalizedWidth;
+    // console.log("normalized width", rectWidth);
+    // console.log("normalized height", normalizedHeight);
+
+    var x1 = -0.95;  // ORIGINAL (left to right)
     // var x1 = 0.95; // (right to left)
     // var x1 = 0.0 - numberOfObjects * rectWidth ; // center
     // var x1 = 0.0 ; // center
@@ -257,7 +209,6 @@ function drawRect(width,  maxWidth, numberOfObjects, window){
 
             // making a gap for the next rectangle.
             x1 += rectWidth + gap; // use 0.04 as a gap value for now. (left to right JUSTIFIED)
-            startX = x1;
             // x1 -= rectWidth + 0.04;  // (right to left JUSTIFIED)
 
             // CENTER
@@ -272,8 +223,7 @@ function drawRect(width,  maxWidth, numberOfObjects, window){
     
     // updating y1 while resetting x1
     y1 -= RectHeight + 0.01;
-    x1 = -0.90;
-    // x1 = -0.95; // ORIGINAL (left to right)
+    x1 = -0.95; // ORIGINAL (left to right)
     // x1 = 0.95; // (right to left)
     // x1 = 0.0; // CENTER
 
@@ -324,222 +274,4 @@ function maxRectHeight(maxNumberOfRows){
     // uncomment here to change the height of the rectangle based on the window resizing. 
     //return ( (maxHeight/maxNumberOfRows) - gap );
     return 0.4;
-}
-
-function scalingMatrix(sX, sY){
-    return [
-        sX, 0, 0,
-        0, sY, 0,
-        0, 0, 1
-    ];
-}
-
-function F_Letter(width,  maxWidth, numberOfObjects, window){
-    maximumWidth = parseFloat(window.innerWidth/ (maxWidth) ); //works
-    console.log("maxWidth is: ", maxWidth);
-    console.log("Maximum width is: ", maximumWidth);
-    var gap = 100;
-    gap = gap / maxWidth;
-    var rect1Width = width/3; // right one!
-    var rect2Width = width/3 * 2; 
-
-    var x1 = -0.75
-     
-    // var x1 = -0.95;  // ORIGINAL (left to right)
-
-    var y1 = 0.0;
-    var rectDrawArray = [];
-
-    // get the number of max rows we need to use to draw to make line space for
-    // the rectangles.
-    var numberOfCols = maxNumRectangles(rect1Width, maxWidth, window);
-    var numberOfRows = (numberOfObjects/numberOfCols);
-    var RectHeight = maxRectHeight(numberOfRows); 
-
-    for(j = 0; j < numberOfRows; j++){
-
-        for(i = 0; i < numberOfCols ; i++){
-            // making the other corners based on the original corners.
-
-            var x2 = x1 + rect1Width; // ORIGINAL (left to right)
-
-            var y2 = y1 + RectHeight;
-
-            // creating the four corners below for F letter base
-            // first half of the rectangle (triangle 1)
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-
-            // second half of the rectangle (triangle 2)
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y2);
-
-            // 2 side rectangles for f letter
-            // updating the x1 and x2 along with y1 values
-            x1 = x2;
-            x2 = x2 + rect2Width;
-
-            y1 = y2 -  (RectHeight/4) ;
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-            //  other half
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y2);
-
-            // ////////
-
-            // push the y1 and y2 values 
-
-            y2 = y2 - (RectHeight/4) - 0.02;
-            y1 = y2 -  (RectHeight/4);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-            //  other half
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y2);
-
-            // 
-
-            // making a gap for the next F letter.
-            x1 += rect1Width + gap; // use 0.04 as a gap value for now. (left to right JUSTIFIED)
-            y1 = 0.0;
-        }
-    
-    // updating y1 while resetting x1
-    y1 -= RectHeight + 0.01;
-    x1 = -0.95;
-
-}
-
-return rectDrawArray;
-}
-
-function L_Letter(width,  maxWidth, numberOfObjects, window){
-    maximumWidth = parseFloat(window.innerWidth/ (maxWidth) ); //works
-    console.log("maxWidth is: ", maxWidth);
-    console.log("Maximum width is: ", maximumWidth);
-    var gap = 100;
-    gap = gap / maxWidth;
-    var rect1Width = width/2; // right one!
-    var rect2Width = width/3 * 2; 
-
-    var x1 = -0.75
-     
-    // var x1 = -0.95;  // ORIGINAL (left to right)
-
-    var y1 = 0.0;
-    var rectDrawArray = [];
-
-    // get the number of max rows we need to use to draw to make line space for
-    // the rectangles.
-    var numberOfCols = maxNumRectangles(rect1Width, maxWidth, window);
-    var numberOfRows = (numberOfObjects/numberOfCols);
-    var RectHeight = maxRectHeight(numberOfRows); 
-
-    for(j = 0; j < numberOfRows; j++){
-
-        for(i = 0; i < numberOfCols ; i++){
-            // making the other corners based on the original corners.
-
-            var x2 = x1 + rect1Width; // ORIGINAL (left to right)
-            var y2 = y1 + RectHeight;
-
-            // creating the four corners below for F letter base
-            // first half of the rectangle (triangle 1)
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-
-            // second half of the rectangle (triangle 2)
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y2);
-
-            // 1 side rectangle for l letter
-            // push the y2 values 
-
-            y2 = y1 + (RectHeight/4) - 0.02;
-            x2 = x2 + width;
-            // y1 = y2 -  (RectHeight/4);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-            //  other half
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y1);
-
-            rectDrawArray.push(x1);
-            rectDrawArray.push(y2);
-
-            rectDrawArray.push(x2);
-            rectDrawArray.push(y2);
-
-            // 
-
-            // making a gap for the next F letter.
-            x1 += rect1Width + gap; // use 0.04 as a gap value for now. (left to right JUSTIFIED)
-            y1 = 0.0;
-        }
-    
-    // updating y1 while resetting x1
-    y1 -= RectHeight + 0.01;
-    x1 = -0.95;
-
-}
-
-return rectDrawArray;
 }

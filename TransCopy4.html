@@ -17,23 +17,29 @@
     <script id="VertexShader" type="anytype">
        //vertex color and position attributes
        precision mediump float;
-       uniform mat3 u_matrix; // used for scaling the objects
-       attribute vec2 a_position;
-//       attribute vec4 a_position; // right one
+       attribute vec4 a_position;
        attribute vec3 vertexColor;
        varying vec3 fragColor;
        
        void main(){
         fragColor = vertexColor;
-        gl_Position = vec4(u_matrix * vec3(a_position,1),1);
-//        gl_Position = a_position; // right one
-//        gl_position = vec4(a_position);
+        gl_Position= a_position;
+//        gl_position = vec4(a_position, 1.0);
        }
 
     </script>
 
     <script id="FragmentShader" type = "nonjsType">
-        precision highp float;
+        precision mediump float;
+        varying vec3 fragColor;
+        void main(){
+        //    gl_FragColor = vec4(1, 0,1, 1.0);
+            gl_FragColor = vec4(fragColor, 1.0);
+        }
+    </script>
+
+    <script id="FragmentShader" type = "nonjsType">
+        precision mediump float;
         varying vec3 fragColor;
         void main(){
         //    gl_FragColor = vec4(1, 0,1, 1.0);
@@ -44,7 +50,7 @@
 <script>
 type.onkeyup = function(){
     // 2DO: add a parameter to define how the text should be justified
-    drawNumRects(type.value.length, type.value);  
+    drawNumRects(type.value.length);  
     // console.log('num', type.value.length)
 }
 </script>
